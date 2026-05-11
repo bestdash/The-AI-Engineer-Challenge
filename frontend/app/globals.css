@@ -1,0 +1,21 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/**
+ * Base layer: warm paper-like canvas, comfortable line height for coaching copy.
+ */
+@layer base {
+  html {
+    @apply antialiased;
+  }
+
+  body {
+    @apply bg-cream text-ink font-sans min-h-dvh;
+    line-height: 1.6;
+  }
+
+  ::selection {
+    @apply bg-sage/35 text-ink;
+  }
+}
