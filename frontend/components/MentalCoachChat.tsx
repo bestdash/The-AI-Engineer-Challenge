@@ -10,6 +10,8 @@ import {
   type KeyboardEvent,
 } from "react";
 
+import { MessageMarkdown } from "@/components/MessageMarkdown";
+
 /** One row in the transcript. */
 export type ChatMessage = {
   id: string;
@@ -237,7 +239,7 @@ export function MentalCoachChat() {
                     Coach
                   </span>
                 )}
-                <p className="whitespace-pre-wrap break-words">{m.content}</p>
+                <MessageMarkdown content={m.content} variant={m.role} />
               </div>
             </li>
           ))}
