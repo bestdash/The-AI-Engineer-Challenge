@@ -11,3 +11,15 @@ alwaysApply: false
 - You should use Next.js as it works best with Vercel. 
 - This frontend will ultimately be deployed on Vercel, but it should be possible to test locally. 
 - Always provide users with a way to run the created UI once you have created it.
+
+### Visual Style — Soft Organic Design
+- Overall feel: Human, calm, emotionally warm
+- Use rounded corners everywhere (border-radius: 16px or more)
+- Color palette: warm neutrals — creamy whites (#FAF7F2), warm beiges (#E8DDD0), soft terracottas (#C17B5A), muted sage greens (#8FAF8A)
+- Typography: mix a handwritten/script font for headings (e.g. Google Font "Caveat" or "Pacifico") with a clean readable font for body text
+- Add soft box shadows (not harsh, think: box-shadow: 0 4px 20px rgba(0,0,0,0.08))
+- Gentle, minimal illustrations or SVG decorative elements (leaves, soft shapes) as accents
+- Message bubbles should feel like paper notes — warm background, soft shadow
+- The overall layout should feel spacious and breathable, not cramped
+- Avoid cold colors (no sharp blues, grays, or stark whites)
+- Subtle animations on interactions (gentle fade-ins, soft hover states)

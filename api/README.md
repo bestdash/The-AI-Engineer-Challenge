@@ -1,122 +1,112 @@
-# OpenAI Chat API Backend
+# Ember Chat API (FastAPI + Anthropic)
 
-This is a FastAPI-based backend service that provides a chat interface using OpenAI's API. The service acts as a supportive mental coach, helping users with stress, motivation, habits, and confidence.
+FastAPI backend for the **Ember** coaching chat: multi-turn conversations go to **Anthropic Claude** with a fixed **Ember** system prompt (persona, brevity, boundaries). No chat history is stored on the server—each request carries the full in-session transcript from the client.
 
 ## Prerequisites
 
-- [`uv`](https://github.com/astral-sh/uv) package manager (`pip install uv`)
-- `uv` will provision Python 3.12 automatically for this project, so no separate interpreter installation is required
-- An OpenAI API key available as the `OPENAI_API_KEY` environment variable when you run the server
+- [`uv`](https://github.com/astral-sh/uv) (`pip install uv` if needed)
+- Python **3.12** (managed by `uv` for this project)
+- **`ANTHROPIC_API_KEY`** in your environment (or `.env` at the repo root via `python-dotenv`)
 
 ## Setup
 
-All commands below assume you are running them from the repository root.
-
-1. Install dependencies into a local virtual environment managed by `uv`:
+From the **repository root**:
 
 ```bash
 uv sync
 ```
 
-2. (Optional) Activate the virtual environment if you prefer to run commands manually:
+Optional: activate the venv:
 
 ```bash
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 ```
 
-`uv` will create the `.venv` directory automatically on first sync and download Python 3.12 if it's not already available.
-
-## Running the Server
-
-Start the FastAPI app with the dependencies managed by `uv`:
+## Run the server
 
 ```bash
 uv run uvicorn api.index:app --reload
 ```
 
-This runs the app with `uvicorn` on `http://localhost:8000` with auto-reload enabled for development. The server will automatically restart when you make changes to the code.
-
-**Note:** Make sure the `OPENAI_API_KEY` environment variable is set in your shell before launching the server. You can set it with:
+Default: **http://127.0.0.1:8000** (or `http://localhost:8000`).
 
 ```bash
-export OPENAI_API_KEY=sk-your-key-here
+export ANTHROPIC_API_KEY=sk-ant-api03-...
 ```
 
-If you encounter an "Address already in use" error, you may need to kill existing processes on port 8000:
+Port in use?
 
 ```bash
 lsof -ti:8000 | xargs kill -9
 ```
 
-## API Endpoints
+## Endpoints
 
-### Chat Endpoint
-- **URL**: `/api/chat`
-- **Method**: POST
-- **Request Body**:
+### `GET /`
+
+Health-ish ping: `{"status":"ok"}`.
+
+### `POST /api/chat`
+
+Sends a **message list** to Claude Haiku with the Ember system prompt.
+
+**Request body** (JSON):
+
 ```json
 {
-    "message": "string"
+  "messages": [
+    { "role": "user", "content": "First thing on my mind is…" },
+    { "role": "assistant", "content": "…" },
+    { "role": "user", "content": "Follow-up from me." }
+  ]
 }
 ```
-- **Response**: JSON object with the AI's reply:
+
+Rules enforced server-side:
+
+- `messages` must be non-empty; each turn has `role` `"user"` or `"assistant"` and non-empty `content`.
+- After normalizing, the sequence must **start with a user** turn and **end with a user** turn (leading assistant-only prefix is stripped for Anthropic).
+- At most **48** turns are kept from the tail of the list.
+
+**Response:**
+
 ```json
-{
-    "reply": "string"
-}
+{ "reply": "Ember's reply as plain text." }
 ```
 
-The chat endpoint uses OpenAI's GPT-5 model with a supportive mental coach system prompt to provide helpful responses.
+**Errors:** `400` for bad message shape; `500` for missing API key or upstream failures (detail in JSON).
 
-### Root Endpoint
-- **URL**: `/`
-- **Method**: GET
-- **Response**: `{"status": "ok"}`
+## Try it with curl
 
-### Health Check
-- **URL**: `/api/health`
-- **Method**: GET
-- **Response**: `{"status": "ok"}`
-
-## API Documentation
-
-Once the server is running, you can access the interactive API documentation at:
-- Swagger UI: `http://localhost:8000/docs`
-- ReDoc: `http://localhost:8000/redoc`
-
-## CORS Configuration
-
-The API is configured to accept requests from any origin (`*`). This can be modified in the `index.py` file if you need to restrict access to specific domains.
-
-## Error Handling
-
-The API includes basic error handling for:
-- Invalid API keys
-- OpenAI API errors
-- General server errors
-
-All errors will return a 500 status code with an error message.
-
-## Testing the API
-
-Once your server is running, you can test the chat endpoint using curl:
+Single user turn (minimal valid body):
 
 ```bash
-curl -X POST http://127.0.0.1:8000/api/chat \
+curl -s -X POST http://127.0.0.1:8000/api/chat \
   -H "Content-Type: application/json" \
-  -d '{"message": "Hello"}'
+  -d '{"messages":[{"role":"user","content":"Hi — just saying hello."}]}'
 ```
 
-You should receive a JSON response with the AI's reply:
-
-```json
-{
-  "reply": "Hi! It's good to hear from you. What's on your mind today?..."
-}
-```
-
-You can also test the health check endpoint:
+Multi-turn (second message sees the first exchange):
 
 ```bash
-curl http://127.0.0.1:8000/api/health
+curl -s -X POST http://127.0.0.1:8000/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{
+    "messages": [
+      {"role":"user","content":"I feel stuck at work."},
+      {"role":"assistant","content":"That sounds heavy. What part feels most stuck?"},
+      {"role":"user","content":"Mostly my manager — I avoid 1:1s."}
+    ]
+  }'
 ```
+
+## Docs in the browser
+
+With the server running:
+
+- Swagger: http://localhost:8000/docs  
+- ReDoc: http://localhost:8000/redoc  
+
+## CORS
+
+`CORSMiddleware` allows **`*`** origins for local dev. Tighten `allow_origins` in `api/index.py` for production.
