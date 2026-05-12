@@ -19,6 +19,9 @@ export type ChatMessage = {
   content: string;
 };
 
+/** Label above assistant bubbles — matches header branding; not uppercased so the name reads naturally. */
+const ASSISTANT_DISPLAY_NAME = "Ember";
+
 const DEFAULT_CHAT_URL = "http://127.0.0.1:8000/api/chat";
 
 function getChatApiUrl(): string {
@@ -122,7 +125,7 @@ export function MentalCoachChat() {
       id: newId(),
       role: "assistant",
       content:
-        "Hi — I’m here with you. What’s on your mind today? Share as much or as little as feels right.",
+        "Hi — I'm Ember, and I'm here with you. What's on your mind today? Share as much or as little as feels right.",
     },
   ]);
   const [draft, setDraft] = useState("");
@@ -237,8 +240,8 @@ export function MentalCoachChat() {
                 ].join(" ")}
               >
                 {m.role === "assistant" && (
-                  <span className="mb-1 block text-xs font-medium uppercase tracking-wide text-sage">
-                    Coach
+                  <span className="mb-1 block text-xs font-medium tracking-wide text-sage">
+                    {ASSISTANT_DISPLAY_NAME}
                   </span>
                 )}
                 <MessageMarkdown content={m.content} variant={m.role} />
@@ -261,7 +264,7 @@ export function MentalCoachChat() {
                     />
                   ))}
                 </span>
-                <span className="sr-only">Waiting for a response from the coach.</span>
+                <span className="sr-only">Waiting for a response from {ASSISTANT_DISPLAY_NAME}.</span>
               </div>
             </li>
           )}
