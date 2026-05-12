@@ -22,6 +22,12 @@ export type ChatMessage = {
 /** Label above assistant bubbles — matches header branding; not uppercased so the name reads naturally. */
 const ASSISTANT_DISPLAY_NAME = "Ember";
 
+/** One turn sent to `POST /api/chat` (matches FastAPI `ChatTurn`). */
+type ApiChatTurn = {
+  role: "user" | "assistant";
+  content: string;
+};
+
 const DEFAULT_CHAT_URL = "http://127.0.0.1:8000/api/chat";
 
 function getChatApiUrl(): string {
@@ -30,10 +36,26 @@ function getChatApiUrl(): string {
 }
 
 /**
- * POSTs the user message to FastAPI and returns the assistant `reply` string.
+ * Builds the in-session transcript for the API. Strips a leading assistant-only prefix so
+ * the first turn is always `user`, which matches Anthropic's expectations.
+ */
+function buildApiTranscript(prior: ChatMessage[], latestUserText: string): ApiChatTurn[] {
+  const combined: ApiChatTurn[] = [
+    ...prior.map((m) => ({ role: m.role, content: m.content })),
+    { role: "user", content: latestUserText },
+  ];
+  let start = 0;
+  while (start < combined.length && combined[start].role === "assistant") {
+    start += 1;
+  }
+  return combined.slice(start);
+}
+
+/**
+ * POSTs the full transcript to FastAPI and returns the assistant `reply` string.
  * Throws with a human-readable message suitable for UI when the backend misbehaves.
  */
-async function postChatMessage(message: string): Promise<string> {
+async function postChatMessage(messages: ApiChatTurn[]): Promise<string> {
   const url = getChatApiUrl();
   let response: Response;
 
@@ -41,7 +63,7 @@ async function postChatMessage(message: string): Promise<string> {
     response = await fetch(url, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ message }),
+      body: JSON.stringify({ messages }),
     });
   } catch (err) {
     const isTypeError = err instanceof TypeError;
@@ -161,7 +183,8 @@ export function MentalCoachChat() {
       setIsSending(true);
 
       try {
-        const reply = await postChatMessage(trimmed);
+        const transcript = buildApiTranscript(messages, trimmed);
+        const reply = await postChatMessage(transcript);
         setMessages((prev) => [
           ...prev,
           { id: newId(), role: "assistant", content: reply },
@@ -177,7 +200,7 @@ export function MentalCoachChat() {
         setIsSending(false);
       }
     },
-    [draft, isSending],
+    [draft, isSending, messages],
   );
 
   function onKeyDown(e: KeyboardEvent<HTMLTextAreaElement>) {
