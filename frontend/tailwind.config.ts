@@ -33,7 +33,7 @@ const config: Config = {
       },
       fontFamily: {
         display: ["var(--font-caveat)", "cursive"],
-        sans: ["var(--font-dm-sans)", "system-ui", "sans-serif"],
+        sans: ["var(--font-nunito)", "system-ui", "sans-serif"],
       },
       keyframes: {
         "fade-in": {

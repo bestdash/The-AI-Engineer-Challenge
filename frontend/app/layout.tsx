@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Caveat, DM_Sans } from "next/font/google";
+import { Caveat, Nunito } from "next/font/google";
 import "./globals.css";
 
 const caveat = Caveat({
@@ -8,16 +8,17 @@ const caveat = Caveat({
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+/** Rounded, friendly body type — reads softer than geometric sans for coaching copy. */
+const nunito = Nunito({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-nunito",
   display: "swap",
 });
 
 export const metadata: Metadata = {
-  title: "Mental Coach — a calm space to talk",
+  title: "Ember — warm conversations, real growth",
   description:
-    "Chat with a supportive mental coach. Warm, spacious UI paired with your local FastAPI backend.",
+    "Hi, I'm Ember. Your personal coach, here whenever you need me. A safe space to be real and move forward.",
 };
 
 export const viewport: Viewport = {
@@ -32,7 +33,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${caveat.variable} ${dmSans.variable}`}>
+    <html lang="en" className={`${caveat.variable} ${nunito.variable}`}>
       <body className="font-sans">{children}</body>
     </html>
   );

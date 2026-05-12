@@ -188,16 +188,18 @@ export function MentalCoachChat() {
     <div className="relative flex min-h-dvh flex-col overflow-hidden bg-gradient-to-b from-cream via-parchment/60 to-sand/40">
       <OrganicBackdrop />
 
-      <header className="relative z-10 border-b border-sand/80 bg-cream/85 px-4 py-5 shadow-soft backdrop-blur-sm sm:px-8">
+      <header className="relative z-10 border-b border-sand/80 bg-cream/85 px-4 py-6 shadow-soft backdrop-blur-sm sm:px-8 sm:py-7">
         <div className="mx-auto max-w-3xl">
-          <p className="font-display text-4xl leading-none text-terracotta sm:text-5xl">
-            Your mental coach
+          <h1 className="font-display text-5xl leading-[0.95] tracking-tight text-terracotta sm:text-6xl md:text-7xl">
+            Ember
+          </h1>
+          <p className="mt-3 font-sans text-base font-medium text-sage sm:text-lg">
+            Warm conversations, real growth
           </p>
-          <p className="mt-2 max-w-xl text-sm text-ink-soft sm:text-base">
-            A quiet corner for reflection. Messages are sent to your local FastAPI coach at{" "}
-            <span className="whitespace-nowrap rounded-full bg-sand/80 px-2 py-0.5 font-mono text-xs text-ink sm:text-sm">
-              {getChatApiUrl()}
-            </span>
+          <p className="mt-4 max-w-2xl text-pretty font-sans text-sm leading-relaxed text-ink-soft sm:text-base">
+            Hi, I&apos;m Ember. Your personal coach, here whenever you need me. This is your safe space
+            — come as you are, say what&apos;s real, and let&apos;s turn whatever you&apos;re carrying
+            into something that moves you forward.
           </p>
         </div>
       </header>
